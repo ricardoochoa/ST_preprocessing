@@ -1,0 +1,55 @@
+---
+title: "Proximity raster: Distances from point shape files"
+author: "Ricardo Ochoa, Eduardo Denicia"
+date: "8/15/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Libraries
+
+The following instructions explain how to create a proximity raster from point shape files.
+
+First step is to load the libraries:
+```{r libraries}
+library(rgdal)
+library(raster)
+library(sp)
+```
+
+## Data
+```{r data boundaries}
+boundaries <- readOGR("_raw/Sofifi Shapefiles/Deliniasi.shp")
+boundaries <- spTransform(boundaries, CRS("+proj=longlat +ellps=WGS84 +datum=WGS84"))
+plot(boundaries)
+
+empty_raster <- raster(ncol=180, nrow=180, ext = extent(bbox(boundaries)))
+r <- rasterize(boundaries, empty_raster, fun='first')
+plot(r)
+
+writeRaster(x = r, filename = paste0("_output/sofifi/dummy_filter.tif"), overwrite=TRUE)  
+
+facilitas <- read.csv("_raw/Sofifi Shapefiles/Fasilitas.csv")
+
+for(remark in levels(facilitas$REMARK)){
+  points <- coordinates(subset(facilitas, REMARK == remark)[c("X", "Y")])
+  temp <- distanceFromPoints(object = r, xy = points)*r
+  
+  tiff.name <- remark
+  tiff.name <- gsub(pattern = "/", replacement = "_", x = tiff.name)
+  tiff.name <- gsub(pattern = " ", replacement = "_", x = tiff.name)
+  
+  writeRaster(x = temp, filename = paste0("_output/sofifi/", tiff.name, ".tif"), overwrite=TRUE)  
+}
+```
+
+## Plot
+
+```{r plot, echo=FALSE}
+plot(temp)
+```
+
+Final notes...
