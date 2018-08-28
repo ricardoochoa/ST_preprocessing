@@ -5,7 +5,7 @@ date: "8/28/2018"
 output: html_document
 ---
 
-This tutorial will guide you in a step-by-step process to create built-up area from GHSL data. This tutorial considers that you are already familiar with the following concepts. If you are not, please visit the links.
+This tutorial will guide you in a step-by-step process to create a built-up area raster from GHSL data. This tutorial considers that you are already familiar with the following concepts. If you are not, please visit the links.
 
 - [R](https://www.r-project.org/)
 - [RStudio](https://www.rstudio.com)
@@ -13,7 +13,7 @@ This tutorial will guide you in a step-by-step process to create built-up area f
 - [Global Human Settlements Layer data](https://ghsl.jrc.ec.europa.eu/)
 
 ## Introduction 
-Urban studies commonly depend on population and built-up area estimates. However, city officials and technical teams commonly struggle to generate, maintain or retrive detailed spatial information. The following R code explains how to create a **raster** (GeoTif) file with population and built-up area from **GHSL data**. 
+Urban studies commonly depend in built-up area estimates. However, city officials and technical teams commonly struggle to generate, maintain or retrive detailed spatial information. The following R code explains how to create a **raster** (GeoTif) file with population and built-up area from **GHSL data**. 
 
 ## 1. Download GHSL data
 Download the **GHSL data** from the [Global Human Settlements Layer portal](https://ghsl.jrc.ec.europa.eu/). Or, if you want to save some clicks, here is a shortcut to the download page: <http://cidportal.jrc.ec.europa.eu/ftp/jrc-opendata/GHSL/GHS_BUILT_LDSMT_GLOBE_R2015B/>. You can choose the files that best match your needs, but in this tutorial we will use the following:
@@ -35,11 +35,9 @@ Run the following lines to load the libraries.
 
 ```{r 2 libraries, include=TRUE, echo=TRUE, message=FALSE}
 # install.packages('raster')    # Run only once
-# install.packages('rasterVis') # Run only once
 # install.packages('sp')        # Run only once
 # install.packages('leaflet')   # Run only once
 library(raster)
-library(rasterVis)
 library(sp)
 library(leaflet)
 ```
