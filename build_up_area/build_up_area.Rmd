@@ -1,0 +1,120 @@
+---
+title: "Create a raster with built-up area from GHSL data"
+author: "Ricardo Ochoa, Eduardo Denicia"
+date: "8/28/2018"
+output: html_document
+---
+
+This tutorial will guide you in a step-by-step process to create built-up area from GHSL data. This tutorial considers that you are already familiar with the following concepts. If you are not, please visit the links.
+
+- [R](https://www.r-project.org/)
+- [RStudio](https://www.rstudio.com)
+- [Raster](https://en.wikipedia.org/wiki/Raster_graphics)
+- [Global Human Settlements Layer data](https://ghsl.jrc.ec.europa.eu/)
+
+## Introduction 
+Urban studies commonly depend on population and built-up area estimates. However, city officials and technical teams commonly struggle to generate, maintain or retrive detailed spatial information. The following R code explains how to create a **raster** (GeoTif) file with population and built-up area from **GHSL data**. 
+
+## 1. Download GHSL data
+Download the **GHSL data** from the [Global Human Settlements Layer portal](https://ghsl.jrc.ec.europa.eu/). Or, if you want to save some clicks, here is a shortcut to the download page: <http://cidportal.jrc.ec.europa.eu/ftp/jrc-opendata/GHSL/GHS_BUILT_LDSMT_GLOBE_R2015B/>. You can choose the files that best match your needs, but in this tutorial we will use the following:
+
+GHS BUILT-UP GRID (LDS), for 2014 with a resolution of 1km.
+
+[GHS_BUILT_LDS2014_GLOBE_R2016A_54009_1k](http://cidportal.jrc.ec.europa.eu/ftp/jrc-opendata/GHSL/GHS_BUILT_LDSMT_GLOBE_R2015B/GHS_BUILT_LDS2014_GLOBE_R2016A_54009_1k/)
+
+Please be aware that GHSL data is quite heavy. The file that we will use in this tutorial is 69.4MB. If you decide to use 38m (around 1GB), prepare your self either with a good internet connection or with a lot of patience. And of course, verify that you have enough available disk space in your computer.
+
+## 2. Load required libraries
+In this tutorial we will use the following libraries:
+[raster](https://cran.r-project.org/web/packages/raster/raster.pdf): Title Geographic Data Analysis and Modeling Version 2.6-7, November 12, 2017
+[rasterVis](https://cran.r-project.org/web/packages/rasterVis/rasterVis.pdf): Title Visualization Methods for Raster Data, Version 0.45, June 3, 2018
+[sp](https://cran.r-project.org/web/packages/sp/sp.pdf): Classes and Methods for Spatial Data, Version 1.3-1, June 5, 2018
+[leaflet](https://cran.r-project.org/web/packages/leaflet/leaflet.pdf): Create Interactive Web Maps with the JavaScript 'Leaflet', Version 2.0.2, August 27, 2018
+
+Run the following lines to load the libraries. 
+
+```{r 2 libraries, include=TRUE, echo=TRUE, message=FALSE}
+# install.packages('raster')    # Run only once
+# install.packages('rasterVis') # Run only once
+# install.packages('sp')        # Run only once
+# install.packages('leaflet')   # Run only once
+library(raster)
+library(rasterVis)
+library(sp)
+library(leaflet)
+```
+
+## 3. Define the study area
+We will define our study area with an imaginary rectangle, where lower-left is the south-west corner and top-right is the north-east corner of the rectangle. We will use Mexico City for this example. If you are using a different CRS, you will need to define a different **user_crs**.
+
+```{r study area}
+# User input CRS
+user_crs <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+  
+# lower left:
+lower_left <- SpatialPoints(coords = data.frame(x = -99.5106, 
+                                                y = 18.92247), 
+                            proj4string=CRS(user_crs))
+# top right: 
+top_right <- SpatialPoints(coords = data.frame(x = -98.5986, 
+                                                y = 20.01847), 
+                            proj4string=CRS(user_crs))
+```
+
+Please pay atention in the Coordinate Reference System (CRS). As you will see, in previous lines we used **longlat**. However, GHSL uses **moll**. We will take a lazy approach and will let R decide if a transformation is needed. 
+
+```{r transform crs}
+# GHSL CRS
+ghsl_crs <- '+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs'   # for 1000m and 250m
+# ghsl_crs <- '+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs' # for 38m
+
+# If needed, R will make the transformation. 
+if(as.character(crs(lower_left)) != ghsl_crs){
+  lower_left <- spTransform(x = lower_left,
+                            CRSobj = ghsl_crs)
+}
+
+if(as.character(crs(top_right)) != ghsl_crs){
+  top_right <- spTransform(x = top_right,
+                            CRSobj = ghsl_crs)
+}
+```
+
+We will use the definition of **lower_left** and **top_right** to create our **extent**. Please note that the extent can be defined as the limits of your study area.  
+
+```{r define the extent}
+my_extent <- extent(c(as.data.frame(lower_left)$x, 
+                      as.data.frame(top_right)$x, 
+                      as.data.frame(lower_left)$y, 
+                      as.data.frame(top_right)$y)) 
+
+
+```
+
+## 4. Crop GHSL world data to your extent
+It seams that everything is set. The next step is to crop the GHSL world data to your study area. Or to be precise, to your extent. Please note that I have saved GHSL file in the following folder: "_data/ghsl/0250m/2014.tif". Depending on where you stored your GHSL file, you might need to modify that line. 
+
+```{r crop the raster}
+# crop raster stack based on the definition of the study area
+built_up <- crop(x = raster("_input/2014.tif"),
+                 y = my_extent)
+
+```
+
+That was easy! Now, we will plot it. 
+
+```{r rasterVis, echo=FALSE}
+leaflet() %>% addTiles() %>%
+  addRasterImage(built_up, opacity = 0.5)
+```
+
+## 5. Save your raster file
+
+Save your raster file in your preffered directory.
+
+```{r write raster}
+writeRaster(built_up, filename = "_output/built_up_mexico_city.tif", overwrite = TRUE)
+```
+
+That's it!
+
