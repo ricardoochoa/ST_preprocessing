@@ -1,0 +1,10 @@
+name: Publish Document
+title:
+username:
+account: rpubs
+server: rpubs.com
+hostUrl: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/416711/62399b75044f4103857e2b277c3e703f
+bundleId: https://api.rpubs.com/api/v1/document/416711/62399b75044f4103857e2b277c3e703f
+url: http://rpubs.com/ricardo_ochoa/416711
+when: 1536078170.13466

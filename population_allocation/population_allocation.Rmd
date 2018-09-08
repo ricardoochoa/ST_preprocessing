@@ -1,0 +1,95 @@
+---
+title: "Population allocation in a built-up raster with R"
+author: "Ricardo Ochoa, Eduardo Denicia"
+date: "9/3/2018"
+output: html_document
+---
+
+This tutorial will guide you in a step-by-step process to allocate population in a built-up raster in R. This tutorial considers that you are already familiar with the following concepts. If you are not, please visit the links.
+
+- [R](https://www.r-project.org/)
+- [RStudio](https://www.rstudio.com)
+- [Raster](https://en.wikipedia.org/wiki/Raster_graphics)
+
+## Introduction 
+Urban studies commonly depend on population-density estimations. Frequently, population data is available at municipal-level, or in the best cases at census-block-level, but rareley at lower scales. In this tutorial we will allocate population based in built-up data. We will use census data at municipal level and the output from the [Mask and crop a raster from shapefile in R](https://github.com/ricardoochoa/ST_preprocessing/tree/master/mask_and_crop_raster_from_shapefile) tutorial.
+
+## 1. Load required libraries
+In this tutorial we will use the following libraries:
+[raster](https://cran.r-project.org/web/packages/raster/raster.pdf): Title Geographic Data Analysis and Modeling Version 2.6-7, November 12, 2017
+[rgdal](https://cran.r-project.org/web/packages/rgdal/rgdal.pdf): Bindings for the 'Geospatial' Data Abstraction, Version 1.3-4, August 3, 2018
+[leaflet](https://cran.r-project.org/web/packages/leaflet/leaflet.pdf): Create Interactive Web Maps with the JavaScript 'Leaflet', Version 2.0.2, August 27, 2018
+
+Run the following lines to load the libraries. 
+
+```{r 2 libraries, include=TRUE, echo=TRUE, message=FALSE}
+# install.packages('raster')    # Run only once
+# install.packages('rgdal')     # Run only once
+# install.packages('leaflet')   # Run only once
+library(raster)
+library(rgdal)
+library(leaflet)
+```
+
+## 2. Prepare data
+If you want to replicate this tutorial, please download the data from our GitHub repository: [population_allocation](https://github.com/ricardoochoa/ST_preprocessing/tree/master/population_allocation). Notice that you will need the contents of the _input file. As you will notice, inputs include a TIF file (raster) with the built-up area in Mexico City, CDMX and a CSV file with population in CDMX in 2014. 
+
+```{r prepare data}
+
+built_up  <- raster('_input/cdmx_builtup.tif')
+plot(built_up)
+
+population_data <- read.csv('_input/cdmx_population.csv')
+head(population_data)
+
+```
+
+## 3. Estimate the population distribution
+Before allocating population we need to set a couple of parameters. First, we will define the population for the selected year. In this case, our year is 2014.
+
+```{r population in 2014}
+population <- population_data[which(population_data$year == 2014), "population"]
+population
+```
+
+The second parameter is the total built-up fraction of our study area. This is ---in simple terms, the sum all values in our built-up raster.
+
+```{r total builtup fraction}
+
+total_builtup_fraction <- as.numeric(cellStats(x = built_up, stat = sum))
+total_builtup_fraction
+
+```
+
+The last step is quite straight-forward. We will use the **population** and the **total_builtup_fraction** as a transformation factor. 
+
+```{r population allocation}
+population_raster <- built_up * (population / total_builtup_fraction)
+```
+
+## 4. Plot
+Lastly, we will plot the final result using leaflet. 
+```{r plot raster}
+
+pal <- colorNumeric(c("#556270", "#4ECDC4", "#C7F464", "#FF6B6B", "#C44D58"),
+                    values(population_raster),
+                    na.color = "transparent")
+
+leaflet() %>%
+  addProviderTiles(providers$OpenStreetMap.BlackAndWhite) %>%
+  addRasterImage(population_raster, colors = pal, opacity = 0.5) %>%
+  addLegend(pal = pal, values = values(population_raster),
+    title = "Distance (m)")
+
+```
+
+## 5. Save your raster file
+
+Save your raster file in your preffered directory.
+
+```{r write raster}
+writeRaster(population_raster, filename = "_output/population_raster.tif", overwrite = TRUE)
+```
+
+That's it!
+

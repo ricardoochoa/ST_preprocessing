@@ -1,5 +1,5 @@
 ---
-title: "Create a distance raster from spatial points"
+title: "Create a distance raster from spatial points in R"
 author: "Ricardo Ochoa, Eduardo Denicia"
 date: "8/28/2018"
 output: html_document
@@ -12,7 +12,7 @@ This tutorial will guide you in a step-by-step process to create create a distan
 - [Raster](https://en.wikipedia.org/wiki/Raster_graphics)
 
 ## Introduction 
-Urban studies commonly depend on assessing how city services are distributed in the city. However, technical teams commonly struggle to generate, maintain or retrive detailed spatial information. The following R code explains how to create a **raster** (GeoTif) in which each pixel includes the minimum distance (crow-flight) to the closest hospital. In this tutorial we will use data from hospitals in Mexico City and the output from the [Create a raster with built-up area from GHSL data](https://github.com/ricardoochoa/ST_preprocessing/tree/master/build_up_area) tutorial.
+Urban studies commonly depend on assessing how city services are distributed in the city. However, technical teams commonly struggle to generate, maintain or retrive detailed spatial information. The following R code explains how to create a **raster** (GeoTif) in which each pixel includes the minimum distance (crow-flight) to the closest hospital. In this tutorial we will use data from hospitals in Mexico City and the output from the [Mask and crop raster from shapefile](https://github.com/ricardoochoa/ST_preprocessing/tree/master/mask_and_crop_raster_from_shapefile) tutorial.
 
 ## 1. Load required libraries
 In this tutorial we will use the following libraries:
@@ -35,42 +35,63 @@ library(leaflet)
 ```
 
 ## 2. Prepare data
-Please download the data from our GitHub repository: [distance_raster](https://github.com/ricardoochoa/ST_preprocessing/tree/master/distance_raster). Notice that you will need the contents of the _input file. As you will notice inputs include a TIF file (raster) with the built-up are in Mexico City Metro Area and a CSV file, with the location of all public hospitals in Mexico City. 
+If you want to replicate this tutorial, please download the data from our GitHub repository: [distance_raster](https://github.com/ricardoochoa/ST_preprocessing/tree/master/distance_raster). Notice that you will need the contents of the _input file. As you will notice inputs include a TIF file (raster) with the built-up are in Mexico City, CDMX and a CSV file, with the location of all [public hospitals in CDMX](www.datosabiertos.cdmx.gob.mx:5000/it/dataset/hospitales-y-centros-de-salud). 
 
-First of all, we will import and explore the data. 
+First of all, we will import and explore the data.
 
-```{r rasterVis, echo=FALSE}
+```{r rasterVis}
+built_up  <- raster("_input/cdmx_builtup.tif")
+plot(built_up)
 
 hospitals <- read.csv("_input/hospitals.csv")
-built_up  <- raster("_input/built_up_mexico_city.tif")
-
-leaflet(hospitals) %>% addTiles() %>%
-  addMarkers(lng = ~lng, lat = ~lat) %>%
-  addRasterImage(built_up, opacity = 0.5)
+plot(hospitals[c("lng", "lat")])
 
 ```
 
-
+Please note from both plots that **hospitals** and **built-up** have different CRS. 
 
 ## 3. Estimate the distance
-```{r estimate distance}
+The distance estimation requires only a couple of lines. However, you might need to transform your data to match CRS between layers. In our example we will transform all hospital points to the built-up raster's CRS. 
+
+```{r fix crs}
 ghsl_crs <- '+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs'
 
+# Read the hospitals data 
 points <- SpatialPointsDataFrame(coords = hospitals[c("lng", "lat")], data = hospitals,
                                proj4string = CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"))
 
+# Transform the CRS
 points <- spTransform(x = points, CRSobj = ghsl_crs)
 
-distance_raster <- distanceFromPoints(object = built_up, xy = points)
+```
+Once that we have the same CRS in both sources, we can estimate the distances with the following code. Please note that the **distanceFromPoints** function will estimate the shortest distance (in meters) to the nearest hospital. 
+
+```{r estimate distance}
+# Distance from points to each raster cell
+distances <- distanceFromPoints(object = built_up, xy = points)
+plot(distances)
+
+# Lastly, we will "mask" the raster to keep only those cells inside CDMX
+distance_raster <- mask(x = distances, mask = built_up)
+plot(distance_raster)
 ```
 
 ## 4. Plot
-```{r plot raster}
-leaflet() %>% addTiles() %>%
-  addRasterImage(distance_raster, opacity = 0.5)
+Lastly, we will plot the final result using leaflet. 
+
+```{r plot raster, warning = FALSE}
+
+pal <- colorNumeric(c("#556270", "#4ECDC4", "#C7F464", "#FF6B6B", "#C44D58"),
+                    values(distance_raster),
+                    na.color = "transparent")
+
+leaflet() %>%
+  addProviderTiles(providers$OpenStreetMap.BlackAndWhite) %>%
+  addRasterImage(distance_raster, colors = pal, opacity = 0.5) %>%
+  addLegend(pal = pal, values = values(distance_raster),
+    title = "Distance in meters")
 
 ```
-
 
 ## 5. Save your raster file
 

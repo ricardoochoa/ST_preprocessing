@@ -1,5 +1,5 @@
 ---
-title: "Create a raster with built-up area from GHSL data"
+title: "Create a built-up raster from GHSL data in R"
 author: "Ricardo Ochoa, Eduardo Denicia"
 date: "8/28/2018"
 output: html_document
@@ -43,7 +43,7 @@ library(leaflet)
 ```
 
 ## 3. Define the study area
-We will define our study area with an imaginary rectangle, where lower-left is the south-west corner and top-right is the north-east corner of the rectangle. We will use Mexico City for this example. If you are using a different CRS, you will need to define a different **user_crs**.
+We will define our study area with a rectangle, where lower-left is the south-west corner and top-right is the north-east corner of the rectangle. We will use Mexico City for this example. If you are using a different CRS, you will need to define a different **user_crs**.
 
 ```{r study area}
 # User input CRS
