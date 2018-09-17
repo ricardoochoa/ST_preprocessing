@@ -58,7 +58,7 @@ ghsl_crs <- '+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=
 
 # Read the hospitals data 
 points <- SpatialPointsDataFrame(coords = hospitals[c("lng", "lat")], data = hospitals,
-                               proj4string = CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"))
+                                 proj4string = CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"))
 
 # Transform the CRS
 points <- spTransform(x = points, CRSobj = ghsl_crs)
