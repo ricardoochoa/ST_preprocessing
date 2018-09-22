@@ -12,7 +12,7 @@ This tutorial will guide you in a step-by-step process to allocate population in
 - [Raster](https://en.wikipedia.org/wiki/Raster_graphics)
 
 ## Introduction 
-Urban studies commonly depend on population-density estimations. Frequently, population data is available at municipal-level, or in the best cases at census-block-level, but rareley at lower scales. In this tutorial we will allocate population based in built-up data. We will use census data at municipal level and the output from the [Mask and crop a raster from shapefile in R](https://github.com/ricardoochoa/ST_preprocessing/tree/master/mask_and_crop_raster_from_shapefile) tutorial.
+Urban studies commonly depend on population-density estimations. Frequently, population data is available at municipal-level, or in the best cases at census-block-level, but rarely at lower scales. In this tutorial we will allocate population based in built-up data. We will use census data at municipal level and the output from the [Mask and crop a raster from shapefile in R](https://github.com/ricardoochoa/ST_preprocessing/tree/master/mask_and_crop_raster_from_shapefile) tutorial.
 
 ## 1. Load required libraries
 In this tutorial we will use the following libraries:
@@ -54,7 +54,7 @@ population
 
 The second parameter is the total built-up fraction of our study area. This is ---in simple terms, the sum all values in our built-up raster.
 
-```{r total builtup fraction}
+```{r total built-up fraction}
 
 total_builtup_fraction <- as.numeric(cellStats(x = built_up, stat = sum))
 total_builtup_fraction
@@ -79,13 +79,13 @@ leaflet() %>%
   addProviderTiles(providers$OpenStreetMap.BlackAndWhite) %>%
   addRasterImage(population_raster, colors = pal, opacity = 0.5) %>%
   addLegend(pal = pal, values = values(population_raster),
-    title = "Distance (m)")
+    title = "Population (inhabitants)")
 
 ```
 
 ## 5. Save your raster file
 
-Save your raster file in your preffered directory.
+Save your raster file in your preferred directory.
 
 ```{r write raster}
 writeRaster(population_raster, filename = "_output/population_raster.tif", overwrite = TRUE)

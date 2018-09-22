@@ -7,7 +7,7 @@
 # - [Denpasar Geoportal](http://geoportal.denpasarkota.go.id/)
 # - [Geoserver](http://geoserver.org/)
 
-# Please consider that you might need to adjust Geoserver permits to allow WFS without autentication. 
+# Please consider that you might need to adjust Geoserver permits to allow WFS without authentication. 
 
 ## 1. Load required libraries
 # In this tutorial we will use the following libraries:
@@ -42,12 +42,12 @@ SERVER <- "http://geoportal.denpasarkota.go.id:8080/"
 # We will import data using Geoserver's WFS. Data will be stored in a temporary directory, which we will delete once that the import is complete. 
 # Built an URL from the inputs in the previous step. 
 URL <- paste0(SERVER, "/geoserver/wfs?request=GetFeature&service=wfs&version=1.0.0&outputformat=SHAPE-ZIP&typename=", 
-WORKSPACE, ":", LAYER)
+              WORKSPACE, ":", LAYER)
 # Create a temporary directory
 dir.create("temp")
 # Download data to the temporary directory and extract it
 download.file(url = URL, 
-destfile = "temp/temp.zip")
+              destfile = "temp/temp.zip")
 unzip(zipfile = "temp/temp.zip", exdir = "temp")
 # Import spatial points
 points <- readOGR(dsn = paste0("temp/", LAYER, "/", LAYER, ".shp"))
@@ -81,5 +81,4 @@ writeRaster(distance_raster, filename = file_path, overwrite = TRUE)
 # That's it! Your layer has been updated. 
 # You can repeat this code for other proximity layers. 
 # Please note that you can contact us for any additional question via [moodle](moodle.up.technology). 
-  
-  
+

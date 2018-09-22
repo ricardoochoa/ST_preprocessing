@@ -13,7 +13,7 @@ This tutorial will guide you in a step-by-step process to create a built-up area
 - [Global Human Settlements Layer data](https://ghsl.jrc.ec.europa.eu/)
 
 ## Introduction 
-Urban studies commonly depend in built-up area estimates. However, city officials and technical teams commonly struggle to generate, maintain or retrive detailed spatial information. The following R code explains how to create a **raster** (GeoTif) file with population and built-up area from **GHSL data**. 
+Urban studies commonly depend in built-up area estimates. However, city officials and technical teams commonly struggle to generate, maintain or retrieve detailed spatial information. The following R code explains how to create a **raster** (GeoTif) file with population and built-up area from **GHSL data**. 
 
 ## 1. Download GHSL data
 Download the **GHSL data** from the [Global Human Settlements Layer portal](https://ghsl.jrc.ec.europa.eu/). Or, if you want to save some clicks, here is a shortcut to the download page: <http://cidportal.jrc.ec.europa.eu/ftp/jrc-opendata/GHSL/GHS_BUILT_LDSMT_GLOBE_R2015B/>. You can choose the files that best match your needs, but in this tutorial we will use the following:
@@ -43,23 +43,23 @@ library(leaflet)
 ```
 
 ## 3. Define the study area
-We will define our study area with a rectangle, where lower-left is the south-west corner and top-right is the north-east corner of the rectangle. We will use Mexico City for this example. If you are using a different CRS, you will need to define a different **user_crs**.
+We will define our study area with a rectangle, where lower-left is the south-west corner and top-right is the north-east corner of the rectangle. We will use Denpasar for this example. If you are using a different CRS, you will need to define a different **user_crs**.
 
 ```{r study area}
 # User input CRS
 user_crs <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
-  
+
 # lower left:
-lower_left <- SpatialPoints(coords = data.frame(x = -99.5106, 
-                                                y = 18.92247), 
+lower_left <- SpatialPoints(coords = data.frame(x = 115.0792, 
+                                                y = -8.849696), 
                             proj4string=CRS(user_crs))
 # top right: 
-top_right <- SpatialPoints(coords = data.frame(x = -98.5986, 
-                                                y = 20.01847), 
+top_right <- SpatialPoints(coords = data.frame(x = 115.3775, 
+                                                y = -8.481177), 
                             proj4string=CRS(user_crs))
 ```
 
-Please pay atention in the Coordinate Reference System (CRS). As you will see, in previous lines we used **longlat**. However, GHSL uses **moll**. We will take a lazy approach and will let R decide if a transformation is needed. 
+Please pay attention in the Coordinate Reference System (CRS). As you will see, in previous lines we used **longlat**. However, GHSL uses **moll**. We will take a lazy approach and will let R decide if a transformation is needed. 
 
 ```{r transform crs}
 # GHSL CRS
@@ -108,10 +108,10 @@ leaflet() %>% addTiles() %>%
 
 ## 5. Save your raster file
 
-Save your raster file in your preffered directory.
+Save your raster file in your preferred directory.
 
 ```{r write raster}
-writeRaster(built_up, filename = "_output/built_up_mexico_city.tif", overwrite = TRUE)
+writeRaster(built_up, filename = "_output/built_up_denpasar.tif", overwrite = TRUE)
 ```
 
 That's it!

@@ -12,7 +12,7 @@ This tutorial will guide you in a step-by-step process to mask and crop a raster
 - [Raster](https://en.wikipedia.org/wiki/Raster_graphics)
 
 ## Introduction 
-Spatial analysis strongly depends defining a study area. Mask rasters, i.e. rasters with boolean values, simplify operations for retriving a specific area. In this tutorial we will create mask and crop a raster from a political boundary shapefile. This will be used to redefine our "study area" (output from the [Create a raster with built-up area from GHSL data](https://github.com/ricardoochoa/ST_preprocessing/tree/master/build_up_area) tutorial).
+Spatial analysis strongly depends defining a study area. Mask rasters, i.e. rasters with boolean values, simplify operations for retrieving a specific area. In this tutorial we will create mask and crop a raster from a political boundary shapefile. This will be used to redefine our "study area" (output from the [Create a raster with built-up area from GHSL data](https://github.com/ricardoochoa/ST_preprocessing/tree/master/build_up_area) tutorial).
 
 ## 1. Load required libraries
 In this tutorial we will use the following libraries:
@@ -32,20 +32,19 @@ library(leaflet)
 ```
 
 ## 2. Prepare data
-If you want to replicate this tutorial, you can download the data from our GitHub repository: [Mask and crop a raster from_shapefile](https://github.com/ricardoochoa/ST_preprocessing/tree/master/mask_and_crop_raster_from_shapefile). Notice that you will need the contents of the _input file. As you will notice inputs include a TIF file (raster) with the built-up are in Mexico City Metro Area and a SHP file (shapefile) with the administrative boudaries of Mexico City, CDMX (formerly known as Federal District). 
+If you want to replicate this tutorial, you can download the data from our GitHub repository: [Mask and crop a raster from_shapefile](https://github.com/ricardoochoa/ST_preprocessing/tree/master/mask_and_crop_raster_from_shapefile). Notice that you will need the contents of the _input file. As you will notice inputs include a TIF file (raster) with the built-up are in Denpasar Metro Area and a SHP file (shapefile) with the administrative boundaries of Denpasar. 
 
 First of all, we will import and explore the data. 
 
 ```{r explore data}
 
-built_up  <- raster('_input/built_up_mexico_city.tif')
-cdmx  <- readOGR('_input/cdmx/cdmx.shp')
+built_up  <- raster('_input/built_up_denpasar.tif')
+denpasar  <- readOGR('_input/denpasar_metro_area/denpasar_metro_area.shp')
 
 # If needed, transform the polygon to match CRS between layers. 
-cdmx <- spTransform(x = cdmx, CRSobj = '+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs')
-
+denpasar <- spTransform(x = denpasar, CRSobj = '+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs')
+plot(denpasar)
 plot(built_up)
-plot(cdmx, axes = TRUE, add = TRUE)
 
 ```
 
@@ -53,7 +52,7 @@ plot(cdmx, axes = TRUE, add = TRUE)
 Once that the raster and the shapefile are in the same CRS, creating a mask is quite straightforward. 
 
 ```{r mask raster}
-masked <- mask(x = built_up, mask = cdmx)
+masked <- mask(x = built_up, mask = denpasar)
 plot(masked)
 
 ```
@@ -62,7 +61,7 @@ plot(masked)
 As you can see from the figure below, the raster now has plenty of white space (cells with **NA** values). If that is your case, you might need to crop the raster. In this tutorial, we will use the shapefile extent to crop the raster. 
 
 ```{r crop raster}
-cropped <- crop(x = masked, y = extent(cdmx))
+cropped <- crop(x = masked, y = extent(denpasar))
 plot(cropped)
 
 ```
@@ -87,10 +86,10 @@ leaflet() %>%
 
 ## 6. Save your raster file
 
-Save your raster file in your preffered directory.
+Save your raster file in your preferred directory.
 
 ```{r write raster}
-writeRaster(cropped, filename = "_output/cdmx_builtup.tif", overwrite = TRUE)
+writeRaster(cropped, filename = "_output/denpasar_builtup.tif", overwrite = TRUE)
 ```
 
 That's it!

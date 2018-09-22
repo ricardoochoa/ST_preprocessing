@@ -12,7 +12,7 @@ This tutorial will guide you in a step-by-step process to create create a distan
 - [Raster](https://en.wikipedia.org/wiki/Raster_graphics)
 
 ## Introduction 
-Urban studies commonly depend on assessing how city services are distributed in the city. However, technical teams commonly struggle to generate, maintain or retrive detailed spatial information. The following R code explains how to create a **raster** (GeoTif) in which each pixel includes the minimum distance (crow-flight) to the closest hospital. In this tutorial we will use data from hospitals in Mexico City and the output from the [Mask and crop raster from shapefile](https://github.com/ricardoochoa/ST_preprocessing/tree/master/mask_and_crop_raster_from_shapefile) tutorial.
+Urban studies commonly depend on assessing how city services are distributed in the city. However, technical teams commonly struggle to generate, maintain or retrieve detailed spatial information. The following R code explains how to create a **raster** (GeoTif) in which each pixel includes the minimum distance (crow-flight) to the closest hospital. In this tutorial we will use data from hospitals in Mexico City and the output from the [Mask and crop raster from shapefile](https://github.com/ricardoochoa/ST_preprocessing/tree/master/mask_and_crop_raster_from_shapefile) tutorial.
 
 ## 1. Load required libraries
 In this tutorial we will use the following libraries:
@@ -35,12 +35,12 @@ library(leaflet)
 ```
 
 ## 2. Prepare data
-If you want to replicate this tutorial, please download the data from our GitHub repository: [distance_raster](https://github.com/ricardoochoa/ST_preprocessing/tree/master/distance_raster). Notice that you will need the contents of the _input file. As you will notice inputs include a TIF file (raster) with the built-up are in Mexico City, CDMX and a CSV file, with the location of all [public hospitals in CDMX](www.datosabiertos.cdmx.gob.mx:5000/it/dataset/hospitales-y-centros-de-salud). 
+If you want to replicate this tutorial, please download the data from our GitHub repository: [distance_raster](https://github.com/ricardoochoa/ST_preprocessing/tree/master/distance_raster). Notice that you will need the contents of the _input file. As you will notice inputs include a TIF file (raster) with the built-up are in Denpasar Metro Area and a CSV file, with the location of all [public hospitals in Denpasar](http://geoportal.denpasarkota.go.id:8080/geoserver/web/). 
 
 First of all, we will import and explore the data.
 
 ```{r rasterVis}
-built_up  <- raster("_input/cdmx_builtup.tif")
+built_up  <- raster("_input/denpasar_builtup.tif")
 plot(built_up)
 
 hospitals <- read.csv("_input/hospitals.csv")
@@ -95,7 +95,7 @@ leaflet() %>%
 
 ## 5. Save your raster file
 
-Save your raster file in your preffered directory.
+Save your raster file in your preferred directory.
 
 ```{r write raster}
 writeRaster(distance_raster, filename = "_output/distance_raster.tif", overwrite = TRUE)

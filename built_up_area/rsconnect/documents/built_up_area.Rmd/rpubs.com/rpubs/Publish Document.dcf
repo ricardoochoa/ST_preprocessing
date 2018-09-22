@@ -6,5 +6,5 @@ server: rpubs.com
 hostUrl: rpubs.com
 appId: https://api.rpubs.com/api/v1/document/416712/22c902ef8fe94b22ac59b7c6f0e5b87d
 bundleId: https://api.rpubs.com/api/v1/document/416712/22c902ef8fe94b22ac59b7c6f0e5b87d
-url: http://rpubs.com/publish/claim/416712/6e24a766b42a48d68a97560637cb90d8
-when: 1536078035.71292
+url: http://rpubs.com/ricardo_ochoa/416712
+when: 1537652240.30848
